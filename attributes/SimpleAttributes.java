@@ -75,60 +75,81 @@ public class SimpleAttributes {
 	}
 	
 	public static void findAmplitude(float[][][] subbands, float[][][] amplitude){
-		int numTraces = subbands.length;
-		int numFreqs = subbands[0].length;
+		int n3 = subbands.length;
+		int n2 = subbands[0].length;
+		int n1 = subbands[0][0].length/2;
 		
+		float[][][] temp = new float[n3][n2][n1];
 		//If there is only one trace
 		if (subbands.length == 1){
-			for (int cf = 0; cf < numFreqs; ++cf){
-				amplitude[0][cf] = cabs(subbands[0][cf]);
+			for (int i2 = 0; i2 < n2; ++i2){
+				temp[0][i2] = cabs(subbands[0][i2]);
 			}
 		}
 		
 		else {
 			//adds up all the traces' amplitudes together into one 2D amplitude array.
-			for (int tr = 0; tr < numTraces; ++tr){	
-				for (int cf = 0; cf < numFreqs; ++cf){
-					amplitude[tr][cf] = cabs(subbands[tr][cf]);
+			for (int i3 = 0; i3 < n3; ++i3){	
+				for (int i2 = 0; i2 < n2; ++i2){
+					temp[i3][i2] = cabs(subbands[i3][i2]);
 				}
 			}
 			
 		}
 		
 		
+		for (int i3 = 0; i3 <n3; ++i3){
+			for (int i2 = 0; i2 <n2; ++i2){
+				for (int i1 = 0; i1<n1; ++i1){
+					amplitude[i3][i1][i2] = temp[i3][i2][i1];	
+				}
+			}
+		}
+		
+		
+		
 	}
 	
 	public static void findAmplitude(float[][][][] subbands, float[][][][] amplitude){
-		int n3 = subbands.length;
-		int n2 = subbands[0].length;
-		int n1 = subbands[0][0].length;
-		int n = subbands[0][0][0].length;
+		int n4 = subbands.length;
+		int n3 = subbands[0].length;
+		int n2 = subbands[0][0].length;
+		int n1 = subbands[0][0][0].length/2;
 		
-		int an3 = amplitude.length;
-		int an2 = amplitude[0].length;
-		int an1 = amplitude[0][0].length;
-		int an = amplitude[0][0][0].length;
-		
-		float[][][][] convertAmp = new float[n3][n2][n][n1];
+		float[][][][] temp = new float[n4][n3][n2][n1];
 		//If there is only one trace
-		if (n3 == 1 && n2 == 1){
-			for (int i1 = 0; i1 < n1; ++i1){
-				amplitude[0][0][i1] = cabs(subbands[0][0][i1]);
+		if (n4 == 1 && n3 == 1){
+			for (int i2 = 0; i2 < n2; ++i2){
+				temp[0][0][i2] = cabs(subbands[0][0][i2]);
 			}
 			
 		}
 		
 		else {
-			for (int i3 = 0; i3 < n3; ++i3){	
-				for (int i2 = 0; i2 <n2; ++i2){
-					for (int i1 = 0; i1 <n1; ++i1){
-						amplitude[i3][i2][i1] = cabs(subbands[i3][i2][i1]);
+			for (int i4 = 0; i4 < n4; ++i4){	
+				for (int i3 = 0; i3 <n3; ++i3){
+					for (int i2 = 0; i2 <n2; ++i2){
+						temp[i4][i3][i2] = cabs(subbands[i4][i3][i2]);
 					}
 				}
 			}
 			
 		}
 		
+	
+		
+		float[][][][] somAmp = new float[n4][n3][n1][n2]; 
+
+		
+		for (int i4 = 0; i4 < n4; ++i4){	
+			for (int i3 = 0; i3 <n3; ++i3){
+				for (int i2 = 0; i2 <n2; ++i2){
+					for (int i1 = 0; i1<n1; ++i1){
+						amplitude[i4][i3][i1][i2] = temp[i4][i3][i2][i1];	
+					}
+				}
+			}
+		}
 		
 		
 		

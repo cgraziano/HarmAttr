@@ -94,6 +94,8 @@ public class SOM2 {
 		
 		//Find sum of each attribute
 		for (int i1=0; i1<n1; ++i1){
+			//System.out.println(n1);
+
 			for (int i3=0; i3<n3; ++i3){
 				for (int i2=0; i2<n2; ++i2){
 					sum[i1] += data[i3][i2][i1];
@@ -131,7 +133,7 @@ public class SOM2 {
 			System.out.println("mean["+i1+"] = "+mean[i1]+" sum["+i1+"] = "+sum[i1]);
 		}*/
 		
-		/******************************Testing purposes only************************************/
+		/******************************Testing purposes only************************************//*
 		float[] sum1 = new float[n1];
 		float[] mean1 = new float[n1];
 		
@@ -165,7 +167,7 @@ public class SOM2 {
 		for (int i1=0; i1<n1; ++i1){
 			System.out.println("mean["+i1+"] = "+mean1[i1]+" stddev["+i1+"] = "+stdDev1[i1]);
 		}
-		
+		*/
 		return normData;
 			
 	}
@@ -200,12 +202,14 @@ public class SOM2 {
 					}
 				}
 			}
+			//System.out.println(sum[i1]);
 		}
 		
 		
 		//Find Mean
 		mean = div(sum, (float)(n4*n3*n2));
-		
+		//System.out.println("mean = "+mean); 
+				
 		
 		//Find (x1-xmean)*(x1-xmean) + (x2-xmean)*(x2-xmean) + (xn-xmean)*(xn-xmean) for each attribute, the inner sum of finding the standard deviation or variance.
 		for (int i1=0; i1<n1; ++i1){
@@ -236,7 +240,7 @@ public class SOM2 {
 			System.out.println("mean["+i1+"] = "+mean[i1]+" sum["+i1+"] = "+sum[i1]);
 		}*/
 		
-		/******************************Testing purposes only************************************/
+		/******************************Testing purposes only************************************//*
 		float[] sum1 = new float[n1];
 		float[] mean1 = new float[n1];
 		
@@ -249,31 +253,31 @@ public class SOM2 {
 			for (int i4=0; i4<n4; ++i4){
 				for (int i3=0; i3<n3; ++i3){
 					for (int i2=0; i2<n2; ++i2){
-						sum[i1] += normData[i4][i3][i2][i1];
+						sum1[i1] += normData[i4][i3][i2][i1];
 					}
 				}
 			}
 		}
 		//Find Mean
-		mean1 = div(sum1, (float)(n3*n2));
+		mean1 = div(sum1, (float)(n4*n3*n2));
 		
 		//Find (x1-xmean)*(x1-xmean) + (x2-xmean)*(x2-xmean) + (xn-xmean)*(xn-xmean) for each attribute, the inner sum of finding the standard deviation or variance.
 		for (int i1=0; i1<n1; ++i1){
 			for (int i4=0; i4<n4; ++i4){
 				for (int i3=0; i3<n3; ++i3){
 					for (int i2=0; i2<n2; ++i2){
-						diffMeanSquarSum[i1] += (normData[i4][i3][i2][i1] - mean[i1])*(normData[i4][i3][i2][i1] - mean[i1]);
+						diffMeanSquarSum1[i1] += (normData[i4][i3][i2][i1] - mean1[i1])*(normData[i4][i3][i2][i1] - mean1[i1]);
 					}
 				}
 			}
 		}
 		
 		//Find Standard Deviation
-		stdDev1 = sqrt(div(diffMeanSquarSum1, n3*n2-1));
+		stdDev1 = sqrt(div(diffMeanSquarSum1, n4*n3*n2-1));
 		
 		for (int i1=0; i1<n1; ++i1){
 			System.out.println("mean["+i1+"] = "+mean1[i1]+" stddev["+i1+"] = "+stdDev1[i1]);
-		}
+		}*/
 		
 		return normData;
 			
@@ -322,7 +326,7 @@ public class SOM2 {
 	}
 	
 	public void train3D(float[][][][] trainData){
-		this.trainData3D = trainData;//norm3DData(trainData);
+		this.trainData3D = norm3DData(trainData);
 		iterationManager3DData();
 		System.out.println("rStart = "+rStart);
 	}
@@ -535,7 +539,7 @@ public class SOM2 {
 		for (int i3=0; i3<n3; ++i3){
 			for (int i2=0; i2<n2; ++i2){
 				for (int i1=0; i1<n1; ++i1){
-					classifiedData[i3][i2][i1] = classifyOneData(inputData[i3][i2][i1]);
+					classifiedData[i3][i2][i1] = classifyOneData(normData[i3][i2][i1]);
 				}
 			}
 		}
