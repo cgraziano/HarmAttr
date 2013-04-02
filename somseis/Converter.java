@@ -56,7 +56,7 @@ public class Converter {
 	}
 	
 	/**
-	 * Switch 1st and 3rd indices.
+	 * Switch 1st and 2nd indices.
 	 * @param original
 	 * @param switched
 	 */
@@ -64,7 +64,7 @@ public class Converter {
 		for (int i=0; i<original.length; ++i){
 			for (int j=0; j<original[0].length; ++j){
 				for (int k=0; k<original[0][0].length; ++k){
-					switched[k][i][j] = original[i][j][k];
+					switched[j][i][k] = original[i][j][k];
 				}
 			}
 		}
