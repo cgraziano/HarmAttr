@@ -69,11 +69,10 @@ public class Run2Dsom2Ddata {
 
 		
 		final float[][] amplitudeStack = new float[freq.getCount()][time.getCount()];
-		final float[][][] amplitude = new float[totaltraces][freq.getCount()][time.getCount()];
+		final float[][][] amplitude = new float[totaltraces][time.getCount()][freq.getCount()];
 
 		final float[][] phase = new float[freq.getCount()][time.getCount()];
 		float[][][] bigsubbands = new float[totaltraces][freq.getCount()][2*time.getCount()];
-		
 		gf.apply(shortData, bigsubbands);
 		System.out.println("Morlet Complete");
 		
@@ -84,18 +83,18 @@ public class Run2Dsom2Ddata {
 		SimpleAttributes.findPhase(bigsubbands, phase);
 		frtrtiamp = new float[freq.getCount()][totaltraces][time.getCount()];
 		
-		float[][][] somAmp = new float[totaltraces][time.getCount()][numfilters];
-		for (int i=0; i<totaltraces; ++i){
+		//float[][][] somAmp = new float[totaltraces][time.getCount()][numfilters];
+		/*for (int i=0; i<totaltraces; ++i){
 			for (int j=0; j<time.getCount(); ++j){
 				for (int k=0; k<numfilters; ++k){
 					somAmp[i][j][k] = amplitude[i][k][j];
 				}
 			}
-		}
+		}*/
 		
 
 
-		som.train2D(somAmp);
+		som.train2D(amplitude);
 		
 		
 		for (int i=0; i<n2; ++i){
@@ -103,7 +102,7 @@ public class Run2Dsom2Ddata {
 				System.out.println("nodes = "+som.node(i,j));
 			}
 		}
-		float[][] classData = som.classify2DData(somAmp);
+		float[][] classData = som.classify2DData(amplitude);
 		cdp = new Sampling(totaltraces, 1.0, startCDP);
 		time = new Sampling(totalsamples, dt, startSample);
 		MultiplePlot mp1 = new MultiplePlot(time, cdp, shortData,cdp, classData);

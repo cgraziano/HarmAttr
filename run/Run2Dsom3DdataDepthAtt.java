@@ -1,8 +1,6 @@
 package run;
 
 import static edu.mines.jtk.util.ArrayMath.div;
-import edu.mines.jtk.mosaic.*;
-
 import static edu.mines.jtk.util.ArrayMath.max;
 import static edu.mines.jtk.util.ArrayMath.min;
 
@@ -14,20 +12,21 @@ import javax.swing.SwingUtilities;
 
 import morletwavelettransform.CenterFreqs;
 import morletwavelettransform.MorletTransform;
-import somseis.Converter;
 import somseis.SOM2;
 import attributes.SimpleAttributes;
 import display.MultiplePlot;
 import display.SinglePlot;
 import edu.mines.jtk.awt.ColorMap;
 import edu.mines.jtk.dsp.Sampling;
+import edu.mines.jtk.mosaic.PlotFrame;
 import edu.mines.jtk.mosaic.PlotPanelPixels3;
 import edu.mines.jtk.sgl.ImagePanelGroup;
 import edu.mines.jtk.sgl.SimpleFrame;
 import grabbers.DataGrabber;
 
-public class Run2Dsom3Ddata {
+public class Run2Dsom3DdataDepthAtt {
 	public static void main(String[] args){
+	
 		//File file = new File("C://Users/Chris/Documents/!gb.seismic.binary");
 		//File file = new File("C://Users/Chris/workspace/Harmonic_Attributes/tpst.binary");
 		File file = new File("C:/Users/Chris/401_4_600TPData/tpsz.binary");
@@ -52,7 +51,7 @@ public class Run2Dsom3Ddata {
 		
 		sN1 = 0;
 		eN1 = 400;
-		dt = .004;
+		dt = .002;
 		
 		n1 = eN1 - sN1 + 1;
 		n2 = eN2 - sN2 +1;
@@ -61,6 +60,7 @@ public class Run2Dsom3Ddata {
 		
 		Sampling sampN3 = new Sampling(n3, 1.0f, sN3);
 		Sampling sampN2 = new Sampling(n2, 1.0f, sN2);
+		
 		
 		//Frequencies to analyze and number of filters
 		fmin = 8;//Hz
@@ -74,11 +74,17 @@ public class Run2Dsom3Ddata {
 		int n1SOM = 4;
 		SOM2 som = new SOM2(numIter, n2SOM, n1SOM, numAttributes);
 		
-		//final float[][][] shortData = DataGrabber.shorten3DData(rawData, sN3, eN3, sN2, eN2, sN1, eN1);
+		final float[][][] shortData = DataGrabber.shorten3DData(rawData, sN3, eN3, sN2, eN2, sN1, eN1);
 		System.out.println("Trimmed Data Built");
 		
-		
-	
+		ImagePanelGroup img3 = new ImagePanelGroup(rawData);
+  		//img2.setColorModel(cm.getColorModel());
+		SimpleFrame sf3 = new SimpleFrame();
+		sf3.addImagePanels(img3);
+	/*	ImagePanelGroup img = new ImagePanelGroup(shortData);
+		SimpleFrame sf = new SimpleFrame();
+		sf.addImagePanels(img);*/
+
 		Sampling time = new Sampling(n1, dt, 0);
 		MorletTransform gf = new MorletTransform(time, numfilters, fmin, fmax);
 		Sampling freq = MorletTransform.getLogFrequencySampling(dt);
@@ -86,12 +92,28 @@ public class Run2Dsom3Ddata {
 		float[][][][] subbands = new float[n3][n2][freq.getCount()][2*time.getCount()];
 		float[][][][] amp = new float[n3][n2][time.getCount()][freq.getCount()];
 
-		gf.apply(rawData, subbands);
+		gf.apply(shortData, subbands);
 		System.out.println("Morlet Complete");
 		
 		SimpleAttributes.findAmplitude(subbands, amp);
 		System.out.println("Amplitude Complete");
 
+		/*int sn4 = amp.length;
+		int sn3 = amp[0].length;
+		int sn2 = amp[0][0].length;
+		int sn1 = amp[0][0][0].length;
+		float[][][][] somAmp = new float[sn4][sn3][sn1][sn2+1]; 
+		for (int i4 = 0; i4 < sn4; ++i4){	
+			for (int i3 = 0; i3 <sn3; ++i3){
+				for (int i2 = 0; i2 <sn2; ++i2){
+					for (int i1 = 0; i1<sn1; ++i1){
+						somAmp[i4][i3][i1][i2] = amp[i4][i3][i2][i1];
+						somAmp[i4][i3][i1][sn2] = i1;
+						
+					}
+				}
+			}
+		}*/
 		
 		
 		
@@ -109,7 +131,7 @@ public class Run2Dsom3Ddata {
 		ImagePanelGroup img1 = new ImagePanelGroup(classData);
   		img1.setColorModel(cm.getColorModel());
   		
-  		ImagePanelGroup img2 = new ImagePanelGroup(rawData);
+  		ImagePanelGroup img2 = new ImagePanelGroup(shortData);
   		//img2.setColorModel(cm.getColorModel());
 		SimpleFrame sf1 = new SimpleFrame();
 		sf1.addImagePanels(img1);
