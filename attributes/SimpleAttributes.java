@@ -3,194 +3,143 @@ package attributes;
 import static edu.mines.jtk.util.ArrayMath.cabs;
 import static edu.mines.jtk.util.ArrayMath.carg;
 import static edu.mines.jtk.util.ArrayMath.mul;
-import static edu.mines.jtk.util.ArrayMath.add;
-import static edu.mines.jtk.util.ArrayMath.div;
-import static edu.mines.jtk.util.ArrayMath.max;
 
 import static java.lang.Math.PI;
 
-
 /**
  * 
- * @author Chris
- * Calculates the amplitude spectrum or phase spectrum by using sub-bands(the imaginary and 
- * real parts of a certain number of frequencies that were created by the Morlet transform 
- * of a single trace). This class also has the capability to calculate the the overall amplitude 
- * spectrum from the sub-bands of multiple traces.
+ * @author Chris Graziano Calculates the amplitude or phase spectrum of a
+ *         signal's complex sub-bands
  */
 public class SimpleAttributes {
 	/**
-	 * Finds the amplitude spectrum of the sub-bands of a single trace.
-	 * @param subbands - First dimension: number of sub-bands. Second dimension: the number of samples in 
-	 * each sub-band(twice the number of samples in the orginal trace to account for 
-	 * real and imaginary parts).
-	 * @param amplitude - The magnitude of the real and imaginary parts of each sub-band. 
-	 * amplitude[f][t] = SQRT(subbands[f][2*t]*subbands[f][2*t] + subbands[f][2*t + 1]*subbands[f][2*t +1 ]),
-	 * First dimension: number of sub-bands. Second dimension: number of samples in the original
-	 * trace. 
+	 * Finds the amplitude spectrum of each subband of a single signal.
+	 * 
+	 * @param subbands
+	 *            - First dimension: number of sub-bands. Second dimension: the
+	 *            number of samples in each sub-band(twice the number of samples
+	 *            in the original trace to account for real and imaginary
+	 *            parts).
+	 * @return The magnitude of the real and complex parts of each subband.
 	 */
-	public static void findAmplitude(float[][] subbands, float[][] amplitude){
-		for (int cf = 0; cf < subbands.length; ++cf){
-			amplitude[cf] = cabs(subbands[cf]);
-		}
-	}
-	
-	/**
-	 * Finds the amplitude spectrum of the sub-bands of a multiple trace.
-	 * @param subbands - First dimension: number of traces. Second dimension: number of sub-bands.
-	 * Third dimension: the number of samples in 
-	 * each sub-band(twice the number of samples in the orginal trace to account for 
-	 * real and imaginary parts).
-	 * @param amplitude - The magnitude of the real and imaginary parts of each sub-band. 
-	 * amplitude[f][t] = SQRT(subbands[f][2*t]*subbands[f][2*t] + subbands[f][2*t + 1]*subbands[f][2*t +1 ]),
-	 * First dimension: number of sub-bands. Second dimension: number of samples in the original
-	 * traces. 
-	 */
-	public static void findAmplitudeStack(float[][][] subbands, float[][] amplitude){
-		int numTraces = subbands.length;
-		int numFreqs = subbands[0].length;
-		
-		//If there is only one trace
-		if (subbands.length == 1){
-			for (int cf = 0; cf < numFreqs; ++cf){
-				amplitude[cf] = cabs(subbands[0][cf]);
-			}
-		}
-		
-		else {
-			//adds up all the traces' amplitudes together into one 2D amplitude array.
-			for (int tr = 0; tr < numTraces; ++tr){	
-				for (int cf = 0; cf < numFreqs; ++cf){
-					amplitude[cf] = add(cabs(subbands[tr][cf]), amplitude[cf]);
-				}
-			}
-			//Divide summed amplitude array by the number of traces.
-			//float maxAll = max(amplitude);
-			for (int cf = 0; cf < numFreqs; ++cf){
-				amplitude[cf] = div(amplitude[cf], numTraces);
-			}
-		}
-		
-		
-	}
-	
-	public static void findAmplitude(float[][][] subbands, float[][][] amplitude){
-		int n3 = subbands.length;
-		int n2 = subbands[0].length;
-		int n1 = subbands[0][0].length/2;
-		
-		float[][][] temp = new float[n3][n2][n1];
-		//If there is only one trace
-		if (subbands.length == 1){
-			for (int i2 = 0; i2 < n2; ++i2){
-				temp[0][i2] = cabs(subbands[0][i2]);
-			}
-		}
-		
-		else {
-			//adds up all the traces' amplitudes together into one 2D amplitude array.
-			for (int i3 = 0; i3 < n3; ++i3){	
-				for (int i2 = 0; i2 < n2; ++i2){
-					temp[i3][i2] = cabs(subbands[i3][i2]);
-				}
-			}
-			
-		}
-		
-		
-		for (int i3 = 0; i3 <n3; ++i3){
-			for (int i2 = 0; i2 <n2; ++i2){
-				for (int i1 = 0; i1<n1; ++i1){
-					amplitude[i3][i1][i2] = temp[i3][i2][i1];	
-				}
-			}
-		}
-		
-		
-		
-	}
-	
-	public static void findAmplitude(float[][][][] subbands, float[][][][] amplitude){
-		int n4 = subbands.length;
-		int n3 = subbands[0].length;
-		int n2 = subbands[0][0].length;
-		int n1 = subbands[0][0][0].length/2;
-		
-		float[][][][] temp = new float[n4][n3][n2][n1];
-		//If there is only one trace
-		if (n4 == 1 && n3 == 1){
-			for (int i2 = 0; i2 < n2; ++i2){
-				temp[0][0][i2] = cabs(subbands[0][0][i2]);
-			}
-			
-		}
-		
-		else {
-			for (int i4 = 0; i4 < n4; ++i4){	
-				for (int i3 = 0; i3 <n3; ++i3){
-					for (int i2 = 0; i2 <n2; ++i2){
-						temp[i4][i3][i2] = cabs(subbands[i4][i3][i2]);
-					}
-				}
-			}
-			
-		}
-		
-	
-		
-		float[][][][] somAmp = new float[n4][n3][n1][n2]; 
+	public static float[][] findAmplitude(float[][] subbands) {
+		int n2 = subbands.length;// The number of complex subbands.
+		int n1 = subbands[0].length / 2;// The number of samples (the real and
+										// imaginary part are counted
+										// individually).
 
-		
-		for (int i4 = 0; i4 < n4; ++i4){	
-			for (int i3 = 0; i3 <n3; ++i3){
-				for (int i2 = 0; i2 <n2; ++i2){
-					for (int i1 = 0; i1<n1; ++i1){
-						amplitude[i4][i3][i1][i2] = temp[i4][i3][i2][i1];	
-					}
-				}
-			}
+		float[][] amplitude = new float[n2][n1];
+
+		for (int f = 0; f < n2; ++f) {
+			amplitude[f] = cabs(subbands[f]);// Find the magnitude of each
+												// complex subband.
 		}
-		
-		
-		
-		
-		
+
+		return amplitude;
 	}
-	
+
 	/**
-	 * Finds the phase spectrum of the sub-bands of a single trace.
-	 * @param subbands - First dimension: number of sub-bands. Second dimension: the number of samples in 
-	 * each sub-band or twice the number of samples in the orginal trace to account for 
-	 * real and imaginary parts.
-	 * @param phase - The phase of the real and imaginary parts of each sub-band. 
-	 * phase[f][t] = arcTan(subbands[f][2*t + 1]/subbands[f][2*t]),
-	 * First dimension: number of sub-bands. Second dimension: number of samples in the original
-	 * trace. 
+	 * Finds the amplitude spectrum of the each subband of a 1D array of
+	 * signals.
+	 * 
+	 * @param subbands
+	 *            First dimension: number of sub-bands. Second dimension: number
+	 *            of signals. Third dimension: the number of samples in each
+	 *            sub-band(twice the number of samples in the original trace to
+	 *            account for real and imaginary parts).
+	 * @return The magnitude of the real and complex parts of each subband for
+	 *         each signal
 	 */
-	public static void findPhase(float[][][] subbands, float[][] phase){
-		int numTraces = subbands.length;
-		int numFreqs = subbands[0].length;
-		
-		//If there is only one trace
-		if (subbands.length == 1){
-			for (int cf = 0; cf < numFreqs; ++cf){
-				phase[cf] = mul(carg(subbands[0][cf]), (float)(180/PI));
+	public static float[][][] findAmplitude(float[][][] subbands) {
+		int n3 = subbands.length;// The number of complex subbands.
+		int n2 = subbands[0].length;// The number of signals.
+		int n1 = subbands[0][0].length / 2;// The number of samples (the real
+											// and imaginary part are counted
+											// individually).
+
+		float[][][] amplitude = new float[n3][n2][n1];
+
+		for (int f = 0; f < n3; ++f) {
+			for (int i2 = 0; i2 < n2; ++i2) {
+				amplitude[f][i2] = cabs(subbands[f][i2]);// Find the magnitude
+															// of each complex
+															// subband.
 			}
 		}
-		
-		else {
-			//adds up all the traces' phases together into one 2D amplitude array.
-			for (int tr = 0; tr < numTraces; ++tr){	
-				for (int cf = 0; cf < numFreqs; ++cf){
-					phase[cf] = mul(carg(subbands[tr][cf]), (float)(180/PI));
+
+		return amplitude;
+	}
+
+	/**
+	 * Finds the amplitude spectrum of the each subband of a 2D array of
+	 * signals.
+	 * 
+	 * @param subbands
+	 *            First dimension: number of sub-bands. Second dimension: number
+	 *            of signals in the slow d dimension of a 2D array of signals.
+	 *            Third dimension: number of signals in the slow dimension of a
+	 *            2D array of signals. Fourth dimension: the number of samples
+	 *            in each sub-band(twice the number of samples in the original
+	 *            trace to account for real and imaginary parts).
+	 * @return The magnitude of the real and complex parts of each subband for
+	 *         each signal
+	 */
+	public static float[][][][] findAmplitude(float[][][][] subbands) {
+		int n4 = subbands.length;// The number of subbands.
+		int n3 = subbands[0].length;// The number of signals in the slow
+									// dimension of a 2D array of signals.
+		int n2 = subbands[0][0].length;// The number of signals in the fast
+										// dimension of a 2D array of signals.
+		int n1 = subbands[0][0][0].length / 2;// The number of samples (the real
+												// and imaginary part are
+												// counted individually).
+
+		float[][][][] amplitude = new float[n4][n3][n2][n1];
+
+		for (int f = 0; f < n4; ++f) {
+			for (int i3 = 0; i3 < n3; ++i3) {
+				for (int i2 = 0; i2 < n2; ++i2) {
+					amplitude[f][i3][i2] = cabs(subbands[f][i3][i2]);// Find the
+																		// magnitude
+																		// of
+																		// each
+																		// complex
+																		// array.
 				}
 			}
-			
-			//Divide summed amplitude array by the number of traces.
-			for (int cf = 0; cf < numFreqs; ++cf){
-				phase[cf] = div(phase[cf], numTraces);
-			}
+			System.out.println("Amplitude Frequeny " + f + " done");
+
 		}
-		
+
+		return amplitude;
+
 	}
+
+	/**
+	 * Calculates the phase spectrum of the complex subbands of a single signal.
+	 * 
+	 * @param subbands
+	 *            - First dimension: number of sub-bands. Second dimension: the
+	 *            number of samples in each sub-band or twice the number of
+	 *            samples in the orginal trace to account for real and imaginary
+	 *            parts.
+	 * @return phase - The phase of the real and imaginary parts of each
+	 *         sub-band. phase[f][t] = arcTan(subbands[f][2*t +
+	 *         1]/subbands[f][2*t]),
+	 * 
+	 */
+	public static float[][] findPhase(float[][] subbands) {
+		int n2 = subbands.length;// The number of subbands
+		int n1 = subbands[0].length;// The number of samples (the real and
+									// imaginary part are counted individually).
+
+		float[][] phase = new float[n2][n1];
+
+		for (int cf = 0; cf < n2; ++cf) {
+			phase[cf] = mul(carg(subbands[cf]), (float) (180 / PI));
+		}
+
+		return phase;
+	}
+
 }
